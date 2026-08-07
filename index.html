@@ -361,68 +361,70 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 .next-water.late{color:#9b3033!important}  /* rojo intenso */
 </style>
 
-<style id="iphone-top-menu">
-/* Adaptación del encabezado para iPhone:
-   los accesos superiores pasan a una columna para evitar que se corten. */
+<style id="iphone-status-filters-only">
 @media (max-width: 540px){
-  .ref-header{
-    flex-direction:column!important;
-    align-items:stretch!important;
-    gap:12px!important;
-    padding:8px 4px 14px!important;
-  }
-  .ref-brand{
-    width:100%!important;
-    justify-content:flex-start!important;
-  }
-  .ref-actions{
-    width:100%!important;
+  /* Solo adaptamos los cuadros de estado.
+     Lupa, calendario y botón + conservan exactamente el diseño de V12. */
+  .ref-stats{
     display:flex!important;
     flex-direction:column!important;
-    align-items:stretch!important;
-    gap:8px!important;
+    grid-template-columns:none!important;
+    width:100%!important;
+    gap:10px!important;
+    margin-bottom:16px!important;
+    overflow:visible!important;
   }
-  .ref-actions .ref-round,
-  .ref-actions .ref-new{
+  .ref-stat{
     width:100%!important;
     min-width:0!important;
-    height:44px!important;
-    border-radius:14px!important;
-  }
-  .ref-actions .ref-round{
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-  }
-  .ref-actions .ref-new{
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:7px!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+    height:67px!important;
+    flex:0 0 67px!important;
   }
 }
 </style>
 
 
-<style id="iphone-status-filters">
+<style id="iphone-plant-list">
 @media (max-width: 540px){
-  /* Los filtros de estado pasan a una columna y ocupan todo el ancho. */
-  .filters,
-  .status-filters,
-  .filter-grid{
+  #plantGrid.grid{
     display:flex!important;
     flex-direction:column!important;
     width:100%!important;
-    gap:10px!important;
-    overflow:visible!important;
+    gap:12px!important;
   }
-  .filters > *,
-  .status-filters > *,
-  .filter-grid > *{
+  #plantGrid.grid > .card{
     width:100%!important;
     min-width:0!important;
     max-width:none!important;
     box-sizing:border-box!important;
+  }
+}
+</style>
+
+
+<style id="center-logo-only">
+@media (max-width: 540px){
+  /* En móvil: logo centrado y sin el texto RIÉGAME duplicado a su derecha. */
+  .ref-header{
+    position:relative!important;
+  }
+  .ref-brand{
+    width:100%!important;
+    justify-content:center!important;
+    text-align:center!important;
+  }
+  .ref-brand .ref-title,
+  .ref-brand .brand-title,
+  .ref-brand .logo-text{
+    display:none!important;
+  }
+  .ref-brand img{
+    display:block!important;
+    margin:0 auto!important;
+    max-height:70px!important;
+    width:auto!important;
   }
 }
 </style>
@@ -454,7 +456,7 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 <button class="stat ref-stat soon" data-status="soon" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/><path d="M9 3.5h6"/></svg></span><span class="stat-copy"><strong>Próximamente</strong><small><b id="nSoon">0</b> plantas</small></span></button>
 <button class="stat ref-stat ok" data-status="ok" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.5 12 2.3 2.4 4.8-5"/></svg></span><span class="stat-copy"><strong>Al día</strong><small><b id="nOk">0</b> plantas</small></span></button>
 <button class="stat ref-stat late" data-status="late" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2h.01"/></svg></span><span class="stat-copy"><strong>Atrasadas</strong><small><b id="nLate">0</b> plantas</small></span></button>
-</div><div class="toolbar"><input id="search" class="search" placeholder="🔎 Buscar una planta..." oninput="renderPlants()"><button class="pill active" data-filter="Todas" onclick="setFilter(this)">Todas</button><button class="pill" data-filter="Interior" onclick="setFilter(this)">Interior</button><button class="pill" data-filter="Exterior" onclick="setFilter(this)">Exterior</button></div>
+</div><div class="toolbar"><input id="search" class="search" placeholder="🔎 Buscar una planta..." oninput="renderPlants()"><button class="pill active" data-filter="Todas" onclick="setFilter(this)">Todas</button><button class="pill" data-filter="Interior" onclick="setFilter(this)">Interior</button><button class="pill" data-filter="Exterior" onclick="setFilter(this)">Exterior</button><select id="locationFilter" class="pill location-filter" onchange="setLocationFilter(this.value)"><option value="">Todas las ubicaciones</option></select></div>
 <div class="section-title"><h3 id="listTitle">Mis plantas</h3><span id="plantCount"></span></div>
 <div id="plantGrid" class="grid"></div>
 </section>
@@ -477,7 +479,8 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 
 <div id="modal" class="modal"><div class="sheet"><h2 id="modalTitle">Añadir planta</h2><div class="form">
 <label>Nombre<input id="fName" placeholder="Ej. Monstera deliciosa"></label>
-<label>Ubicación<select id="fPlace"><option>Interior</option><option>Exterior</option></select></label>
+<label>Interior / Exterior<select id="fPlace"><option>Interior</option><option>Exterior</option></select></label>
+<label>Ubicación en casa<input id="fLocation" placeholder="Ej. Salón, terraza, dormitorio..."></label>
 <label>Luz<select id="fLight"><option>Luz indirecta brillante</option><option>Semisombra</option><option>Sol directo</option><option>Sombra luminosa</option></select></label>
 <label>Temperatura<input id="fTemp" placeholder="Ej. 18–28 °C"></label>
 <label>Frecuencia verano (días)<input id="fSummer" type="number" min="1" value="7"></label>
@@ -492,13 +495,13 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 const defaults=[
 ["Monstera deliciosa","Interior",7,14,"Luz indirecta brillante","18–28 °C"],["Monstera Thai","Interior",8,15,"Luz indirecta brillante","18–28 °C"],["Sansivieria","Interior",14,25,"Luz indirecta","15–30 °C"],["Poto variegado","Interior",7,14,"Luz indirecta brillante","18–28 °C"],["Calathea","Interior",5,9,"Luz indirecta","18–27 °C"],["Monstera obliqua","Interior",5,9,"Luz indirecta brillante","20–28 °C"],["Cactus Mammillaria","Interior",18,30,"Mucha luz","10–30 °C"],["Asiento de suegra","Interior",14,25,"Mucha luz","15–30 °C"],["Romero","Exterior",4,10,"Sol directo","5–32 °C"],["Lavanda","Exterior",5,12,"Sol directo","5–35 °C"],["Hedera","Exterior",5,10,"Semisombra","5–25 °C"],["Buganvilla","Exterior",5,12,"Sol directo","8–35 °C"],["Jazmín de estrella","Exterior",5,10,"Sol directo o semisombra","5–30 °C"],["Jade","Exterior",12,25,"Mucha luz","10–30 °C"],["Bignonia ricasoleana lila","Exterior",5,10,"Sol directo","5–32 °C"],["Bignonia capensis","Exterior",5,10,"Sol directo","5–32 °C"],["Acer palmatum Orange Dream","Exterior",4,9,"Semisombra","-10–28 °C"],["Acer palmatum Atropurpurea","Exterior",4,9,"Semisombra","-10–28 °C"]];
 const key="riegame_plants_v1"; let plants=JSON.parse(localStorage.getItem(key)||"null"); if(!plants){const d=new Date();d.setDate(d.getDate()-3);plants=defaults.map((x,i)=>({id:Date.now()+i,name:x[0],place:x[1],summer:x[2],winter:x[3],light:x[4],temp:x[5],last:iso(d),mode:"auto",next:null,notes:""}));save()}
-let filter="Todas",statusFilter="all",editId=null,calDate=new Date(); plants.forEach(p=>{if(!("location" in p))p.location=""});
+let filter="Todas",locationFilter="",statusFilter="all",editId=null,calDate=new Date(); plants.forEach(p=>{if(!("location" in p))p.location=""});
 function iso(d){return d.toISOString().slice(0,10)} function save(){localStorage.setItem(key,JSON.stringify(plants))}
 function seasonDays(p,date=new Date()){let m=date.getMonth()+1; if(m>=6&&m<=9)return +p.summer;if(m===4||m===5||m===10||m===11)return Math.round((+p.summer + +p.winter)/2);return +p.winter}
 function due(p){if(p.mode==="manual"&&p.next)return new Date(p.next+"T12:00");let d=new Date((p.last||iso(new Date()))+"T12:00");d.setDate(d.getDate()+seasonDays(p,d));return d}
 function status(p){let today=new Date();today.setHours(0,0,0,0);let d=due(p);d.setHours(0,0,0,0);let diff=Math.round((d-today)/86400000);return diff<0?"late":diff===0?"today":diff<=3?"soon":"ok"}
 function emoji(p){let n=p.name.toLowerCase();return n.includes("cactus")||n.includes("mammillaria")?"🌵":n.includes("lavanda")?"💜":n.includes("buganvilla")||n.includes("jazmín")?"🌸":n.includes("romero")?"🌿":n.includes("acer")?"🍁":"🪴"}
-function renderPlants(){let q=search.value.toLowerCase();let list=plants.filter(p=>(filter==="Todas"||p.place===filter)&&(statusFilter==="all"||status(p)===statusFilter)&&p.name.toLowerCase().includes(q));
+function renderPlants(){refreshLocationFilter();let q=search.value.toLowerCase();let list=plants.filter(p=>(filter==="Todas"||p.place===filter)&&(locationFilter===""||(p.location||"")===locationFilter)&&(statusFilter==="all"||status(p)===statusFilter)&&p.name.toLowerCase().includes(q));
 list.sort((a,b)=>{const rank={late:0,today:1,soon:2,ok:3};let r=rank[status(a)]-rank[status(b)];return r||(+due(a)-+due(b))});
 listTitle.textContent=statusFilter==="all"?"Mis plantas":({today:"Plantas para regar hoy",soon:"Plantas próximas a regar (7 días)",ok:"Plantas al día",late:"Plantas atrasadas"})[statusFilter];plantCount.textContent=list.length+" plantas";plantGrid.innerHTML=list.map(p=>{let s=status(p),labels={today:"REGAR HOY",late:"ATRASADA",soon:"PRÓXIMAMENTE",ok:"AL DÍA"};return `<article class="card"><div class="top"><div class="planticon">${emoji(p)}</div><div><div class="name">${p.name}</div><div class="meta plant-location">📍 ${p.location||p.place||"Sin ubicación"}</div><div class="next-water ${s}">${plantNextText(p)}</div></div></div><span class="badge ${s}">${labels[s]}</span><div class="actions"><button class="water" onclick="waterPlant(${p.id})">💧 He regado</button><button class="details" onclick="editPlant(${p.id})">Ficha</button></div></article>`}).join("")||"<div class='card'>No se han encontrado plantas.</div>";renderStats()}
 function renderStats(){let a={today:0,soon:0,ok:0,late:0};plants.forEach(p=>a[status(p)]++);if(document.getElementById("nAll"))document.getElementById("nAll").textContent=plants.length;nToday.textContent=a.today;nSoon.textContent=a.soon;nOk.textContent=a.ok;nLate.textContent=a.late;
@@ -509,13 +512,22 @@ else if(a.soon){hero.style.background="linear-gradient(135deg,#b57b27,#d7a64e)";
 else{hero.style.background="linear-gradient(135deg,#315c46,#54765f)";heroTitle.textContent="Todas tus plantas están bajo control";heroText.textContent="No hay riegos pendientes."}
 document.querySelectorAll(".stat").forEach(x=>x.classList.toggle("selected",x.dataset.status===statusFilter));}
 function setStatusFilter(el){let v=el.dataset.status;statusFilter=v==="all"?"all":(statusFilter===v?"all":v);renderPlants();document.getElementById("plantGrid").scrollIntoView({behavior:"smooth",block:"start"})}
+function refreshLocationFilter(){
+ const sel=document.getElementById("locationFilter"); if(!sel)return;
+ const current=locationFilter;
+ const locations=[...new Set(plants.map(p=>(p.location||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
+ sel.innerHTML='<option value="">Todas las ubicaciones</option>'+locations.map(x=>`<option value="${x.replace(/"/g,'&quot;')}">${x}</option>`).join("");
+ sel.value=locations.includes(current)?current:"";
+ if(!locations.includes(current)) locationFilter="";
+}
+function setLocationFilter(value){locationFilter=value;renderPlants();}
 function setFilter(el){filter=el.dataset.filter;document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));el.classList.add("active");renderPlants()}
 function waterPlant(id){let p=plants.find(x=>x.id===id);p.last=iso(new Date());if(p.mode==="manual")p.next=null;p.mode="auto";save();renderPlants();if(Notification.permission==="granted")new Notification("Riégame",{body:`Has registrado el riego de ${p.name}.`})}
-function openAdd(){editId=null;modalTitle.textContent="Añadir planta";["fName","fTemp","fNext","fNotes"].forEach(id=>document.getElementById(id).value="");fPlace.value="Interior";fLight.value="Luz indirecta brillante";fSummer.value=7;fWinter.value=14;fLast.value=iso(new Date());fMode.value="auto";toggleManual();modal.classList.add("show")}
-function editPlant(id){let p=plants.find(x=>x.id===id);editId=id;modalTitle.textContent="Ficha de "+p.name;fName.value=p.name;fPlace.value=p.place;fLight.value=p.light;fTemp.value=p.temp;fSummer.value=p.summer;fWinter.value=p.winter;fLast.value=p.last||"";fMode.value=p.mode;fNext.value=p.next||"";fNotes.value=p.notes||"";toggleManual();modal.classList.add("show")}
+function openAdd(){editId=null;modalTitle.textContent="Añadir planta";["fName","fTemp","fNext","fNotes"].forEach(id=>document.getElementById(id).value="");fPlace.value="Interior";fLocation.value="";fLight.value="Luz indirecta brillante";fSummer.value=7;fWinter.value=14;fLast.value=iso(new Date());fMode.value="auto";toggleManual();modal.classList.add("show")}
+function editPlant(id){let p=plants.find(x=>x.id===id);editId=id;modalTitle.textContent="Ficha de "+p.name;fName.value=p.name;fPlace.value=p.place;fLocation.value=p.location||"";fLight.value=p.light;fTemp.value=p.temp;fSummer.value=p.summer;fWinter.value=p.winter;fLast.value=p.last||"";fMode.value=p.mode;fNext.value=p.next||"";fNotes.value=p.notes||"";toggleManual();modal.classList.add("show")}
 function toggleManual(){manualWrap.classList.toggle("hidden",fMode.value!=="manual")}
 function closeModal(){modal.classList.remove("show")}
-function savePlant(){if(!fName.value.trim())return alert("Escribe el nombre de la planta.");let p=editId?plants.find(x=>x.id===editId):{id:Date.now()};Object.assign(p,{name:fName.value.trim(),place:fPlace.value,light:fLight.value,temp:fTemp.value,summer:+fSummer.value,winter:+fWinter.value,last:fLast.value,mode:fMode.value,next:fNext.value,notes:fNotes.value});if(!editId)plants.push(p);save();closeModal();renderPlants();renderCalendar()}
+function savePlant(){if(!fName.value.trim())return alert("Escribe el nombre de la planta.");let p=editId?plants.find(x=>x.id===editId):{id:Date.now()};Object.assign(p,{name:fName.value.trim(),place:fPlace.value,location:fLocation.value.trim(),light:fLight.value,temp:fTemp.value,summer:+fSummer.value,winter:+fWinter.value,last:fLast.value,mode:fMode.value,next:fNext.value,notes:fNotes.value});if(!editId)plants.push(p);save();closeModal();renderPlants();renderCalendar()}
 function showView(el){document.querySelectorAll("section[id$='View']").forEach(x=>x.classList.add("hidden"));document.getElementById(el.dataset.view).classList.remove("hidden");document.querySelectorAll(".navitem").forEach(x=>x.classList.remove("active"));el.classList.add("active");if(el.dataset.view==="calendarView")renderCalendar()}
 function renderCalendar(){let y=calDate.getFullYear(),m=calDate.getMonth();monthName.textContent=new Date(y,m,1).toLocaleDateString("es-ES",{month:"long",year:"numeric"});let first=new Date(y,m,1).getDay();first=(first+6)%7;let days=new Date(y,m+1,0).getDate();let h=["L","M","X","J","V","S","D"].map(x=>`<div class="dow">${x}</div>`).join("");for(let i=0;i<first;i++)h+="<div></div>";for(let d=1;d<=days;d++){let date=new Date(y,m,d);let ps=plants.filter(p=>iso(due(p))===iso(date));h+=`<div class="day"><b>${d}</b>${ps.map(()=>"<i class='dot'></i>").join("")}</div>`}calendar.innerHTML=h;let sorted=[...plants].sort((a,b)=>due(a)-due(b)).slice(0,8);upcoming.innerHTML=sorted.map(p=>`<div class="card"><b>${emoji(p)} ${p.name}</b><div class="meta">${due(p).toLocaleDateString("es-ES")} · ${status(p)==="late"?"Atrasada":"Programada"}</div></div>`).join("")}
 function changeMonth(n){calDate.setMonth(calDate.getMonth()+n);renderCalendar()}
