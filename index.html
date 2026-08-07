@@ -360,6 +360,49 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 .next-water.ok{color:#3f7a4e!important}    /* verde */
 .next-water.late{color:#9b3033!important}  /* rojo intenso */
 </style>
+
+<style id="iphone-top-menu">
+/* Adaptación del encabezado para iPhone:
+   los accesos superiores pasan a una columna para evitar que se corten. */
+@media (max-width: 540px){
+  .ref-header{
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:12px!important;
+    padding:8px 4px 14px!important;
+  }
+  .ref-brand{
+    width:100%!important;
+    justify-content:flex-start!important;
+  }
+  .ref-actions{
+    width:100%!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:8px!important;
+  }
+  .ref-actions .ref-round,
+  .ref-actions .ref-new{
+    width:100%!important;
+    min-width:0!important;
+    height:44px!important;
+    border-radius:14px!important;
+  }
+  .ref-actions .ref-round{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  .ref-actions .ref-new{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
