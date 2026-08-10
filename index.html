@@ -462,6 +462,110 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 <style id="today-monstera">
 .today-main .stat-icon::before,.hero-today .stat-icon::before{content:"🌿"!important;font-size:42px!important;line-height:1!important;display:block!important}
 </style>
+
+<style id="iphone-v8-final">
+@media (max-width:540px){
+  .ref-stats{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+    overflow:visible!important;
+    width:100%!important;
+    padding:0!important;
+  }
+  .ref-stat{
+    min-width:0!important;
+    width:100%!important;
+    height:68px!important;
+    min-height:68px!important;
+    box-sizing:border-box!important;
+  }
+  .location-toolbar{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:8px!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+    padding:10px!important;
+    background:#eaf4f8!important;
+    border-radius:16px!important;
+    overflow:visible!important;
+  }
+  .location-toolbar .pill{
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    text-align:center!important;
+    padding:10px 4px!important;
+    background:#fff!important;
+  }
+  .location-toolbar .location-filter{
+    appearance:auto!important;
+    -webkit-appearance:auto!important;
+  }
+  .card .next-water{
+    width:100%!important;
+    display:block!important;
+    text-align:center!important;
+    margin:8px 0 4px!important;
+  }
+  .card .badge{
+    display:block!important;
+    width:100%!important;
+    text-align:center!important;
+    margin:0 auto 10px!important;
+  }
+  .card .actions{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+  .card .actions button{
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+  #plantGrid.grid{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:12px!important;
+  }
+  #plantGrid.grid > .card{
+    width:100%!important;
+    max-width:none!important;
+  }
+}
+</style>
+
+
+<style id="hero-monstera-final">
+.hero{position:relative!important;overflow:hidden!important}
+.hero-plant{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:76px;height:76px;opacity:.92;pointer-events:none}
+.hero-plant svg{width:100%;height:100%;fill:rgba(255,255,255,.20);stroke:rgba(255,255,255,.65);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:540px){.hero-plant{width:62px;height:62px;right:12px}}
+</style>
+
+
+<style id="all-filter-v9">
+@media(max-width:540px){
+  .location-toolbar{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+  .location-toolbar .all-filter{
+    background:#f6d5cd!important;
+    border:1px solid #d9826d!important;
+    color:#8d3b2d!important;
+    font-weight:700!important;
+  }
+  .location-toolbar .all-filter.active{
+    background:#c95b4c!important;
+    color:#fff!important;
+    border-color:#c95b4c!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -482,7 +586,11 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 </header>
 
 <section id="homeView">
-<div class="hero"><small>HOY</small><h2 id="heroTitle">Tu jardín está bajo control</h2><p id="heroText">Revisa tus plantas y registra cada riego.</p></div>
+<div class="hero"><div class="hero-plant" aria-hidden="true">
+<svg viewBox="0 0 80 80">
+<path d="M40 72V40C24 42 10 33 9 17c15-2 27 3 31 15C42 18 51 8 68 8c1 17-8 29-24 33v31H40Z"/>
+<path d="M39 45C30 34 22 27 12 23M42 39c8-10 14-17 23-22M40 55c-10-5-18-7-28-7M43 53c10-3 18-4 27-1" fill="none"/>
+</svg></div><small>HOY</small><h2 id="heroTitle">Tu jardín está bajo control</h2><p id="heroText">Revisa tus plantas y registra cada riego.</p></div>
 <div class="stats ref-stats">
 <button class="stat ref-stat all" data-status="all" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V5"/><path d="M12 11C8 11 5 8 5 4c4 0 7 3 7 7Z"/><path d="M12 15c4 0 7-3 7-7-4 0-7 3-7 7Z"/></svg></span><span class="stat-copy"><strong>Todas</strong><small><b id="nAll">0</b> plantas</small></span></button>
 <button class="stat ref-stat ok" data-status="ok" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.5 12 2.3 2.4 4.8-5"/></svg></span><span class="stat-copy"><strong>Al día</strong><small><b id="nOk">0</b> plantas</small></span></button>
@@ -496,6 +604,7 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 <select id="locationFilter" class="pill location-filter" onchange="setLocationFilter(this.value)">
 <option value="">Ubicación</option>
 </select>
+<button class="pill all-filter" data-filter="Todas" onclick="setAllFilter(this)">Todas</button>
 </div>
 <div class="section-title"><h3 id="listTitle">Mis plantas</h3><span id="plantCount"></span></div>
 <div id="plantGrid" class="grid"></div>
@@ -564,7 +673,23 @@ function refreshLocationFilter(){
  sel.value=locations.includes(current)?current:"";
  if(!locations.includes(current)) locationFilter="";
 }
-function setLocationFilter(value){locationFilter=value;renderPlants();}
+function setLocationFilter(value){
+ locationFilter=value;
+ filter="Todas";
+ document.querySelectorAll(".location-toolbar .pill").forEach(x=>x.classList.remove("active"));
+ const all=document.querySelector('.location-toolbar [data-filter="Todas"]');
+ if(all) all.classList.add("active");
+ renderPlants();
+}
+function setAllFilter(el){
+ filter="Todas";
+ locationFilter="";
+ document.querySelectorAll(".location-toolbar .pill").forEach(x=>x.classList.remove("active"));
+ el.classList.add("active");
+ const loc=document.getElementById("locationFilter");
+ if(loc) loc.value="";
+ renderPlants();
+}
 function setFilter(el){filter=el.dataset.filter;document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));el.classList.add("active");renderPlants()}
 function waterPlant(id){let p=plants.find(x=>x.id===id);p.last=iso(new Date());if(p.mode==="manual")p.next=null;p.mode="auto";save();renderPlants();if(Notification.permission==="granted")new Notification("Riégame",{body:`Has registrado el riego de ${p.name}.`})}
 function openAdd(){editId=null;modalTitle.textContent="Añadir planta";["fName","fTemp","fNext","fNotes"].forEach(id=>document.getElementById(id).value="");fPlace.value="Interior";fLocation.value="";fLight.value="Luz indirecta brillante";fSummer.value=7;fWinter.value=14;fLast.value=iso(new Date());fMode.value="auto";fDead.checked=false;toggleManual();modal.classList.add("show")}
