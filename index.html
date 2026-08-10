@@ -449,6 +449,19 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
   .actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
 }
 </style>
+<style id="iphone-v7">
+@media(max-width:540px){
+.location-toolbar{display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:8px!important;width:100%!important;box-sizing:border-box!important;padding:10px!important;background:#eaf4f8!important;border-radius:16px!important}
+.location-toolbar .pill{width:100%!important;min-width:0!important;box-sizing:border-box!important;text-align:center!important;padding:10px 5px!important;background:#fff!important}
+.card .next-water{width:100%!important;display:block!important;text-align:center!important;margin:8px 0 4px!important}
+.card .badge{display:block!important;width:100%!important;text-align:center!important;margin:0 auto 10px!important}
+.card .actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important}
+.card .actions button{width:100%!important;min-width:0!important;margin:0!important}
+}
+</style>
+<style id="today-monstera">
+.today-main .stat-icon::before,.hero-today .stat-icon::before{content:"🌿"!important;font-size:42px!important;line-height:1!important;display:block!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -477,7 +490,13 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 <button class="stat ref-stat soon" data-status="soon" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/><path d="M9 3.5h6"/></svg></span><span class="stat-copy"><strong>Próximamente</strong><small><b id="nSoon">0</b> plantas</small></span></button>
 <button class="stat ref-stat late" data-status="late" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2h.01"/></svg></span><span class="stat-copy"><strong>Atrasadas</strong><small><b id="nLate">0</b> plantas</small></span></button>
 <button class="stat ref-stat dead" data-status="dead" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9c0-3 2.8-5 7-5s7 2 7 5c0 4-3.2 7-7 7S5 13 5 9Z"/><path d="M8.5 9.5h.01M15.5 9.5h.01M9 13c2-1 4-1 6 0"/></svg></span><span class="stat-copy"><strong>Sin vida</strong><small><b id="nDead">0</b> plantas</small></span></button>
-</div><div class="toolbar"><button class="pill active" data-filter="Todas" onclick="setFilter(this)">Todas</button><button class="pill" data-filter="Interior" onclick="setFilter(this)">Interior</button><button class="pill" data-filter="Exterior" onclick="setFilter(this)">Exterior</button><select id="locationFilter" class="pill location-filter" onchange="setLocationFilter(this.value)"><option value="">Todas las ubicaciones</option></select></div><div class="toolbar"><input id="search" class="search" placeholder="🔎 Buscar una planta..." oninput="renderPlants()"><button class="pill active" data-filter="Todas" onclick="setFilter(this)">Todas</button><button class="pill" data-filter="Interior" onclick="setFilter(this)">Interior</button><button class="pill" data-filter="Exterior" onclick="setFilter(this)">Exterior</button><select id="locationFilter" class="pill location-filter" onchange="setLocationFilter(this.value)"><option value="">Todas las ubicaciones</option></select></div>
+</div><div class="toolbar location-toolbar">
+<button class="pill" data-filter="Interior" onclick="setFilter(this)">Interior</button>
+<button class="pill" data-filter="Exterior" onclick="setFilter(this)">Exterior</button>
+<select id="locationFilter" class="pill location-filter" onchange="setLocationFilter(this.value)">
+<option value="">Ubicación</option>
+</select>
+</div>
 <div class="section-title"><h3 id="listTitle">Mis plantas</h3><span id="plantCount"></span></div>
 <div id="plantGrid" class="grid"></div>
 </section>
@@ -525,7 +544,10 @@ function status(p){if(p.dead)return "dead";let today=new Date();today.setHours(0
 function emoji(p){let n=p.name.toLowerCase();return n.includes("cactus")||n.includes("mammillaria")?"🌵":n.includes("lavanda")?"💜":n.includes("buganvilla")||n.includes("jazmín")?"🌸":n.includes("romero")?"🌿":n.includes("acer")?"🍁":"🪴"}
 function renderPlants(){refreshLocationFilter();let list=plants.filter(p=>(filter==="Todas"||p.place===filter)&&(locationFilter===""||(p.location||"")===locationFilter)&&(statusFilter==="all"||status(p)===statusFilter));
 list.sort((a,b)=>{const rank={late:0,today:1,soon:2,ok:3,dead:4};let r=rank[status(a)]-rank[status(b)];return r||(+due(a)-+due(b))});
-listTitle.textContent=statusFilter==="all"?"Mis plantas":({today:"Plantas para regar hoy",soon:"Plantas próximas a regar (7 días)",ok:"Plantas al día",late:"Plantas atrasadas",dead:"Plantas sin vida"})[statusFilter];plantCount.textContent=list.length+" plantas";plantGrid.innerHTML=list.map(p=>{let s=status(p),labels={today:"REGAR HOY",late:"ATRASADA",soon:"PRÓXIMAMENTE",ok:"AL DÍA",dead:"SIN VIDA"};let next=p.dead?"":`<div class="next-water ${s}">${plantNextText(p)}</div>`;return `<article class="card ${p.dead?"dead-card":""}"><div class="top"><div class="planticon">${p.dead?"☁️":emoji(p)}</div><div><div class="name">${p.name}</div><div class="meta plant-type">${p.place}</div><div class="meta plant-location">En ${p.location||"ubicación no indicada"}</div>${next}</div></div><span class="badge ${s}">${labels[s]}</span><div class="actions"><button class="water" onclick="waterPlant(${p.id})">💧 He regado</button><button class="details" onclick="editPlant(${p.id})">Ficha</button></div></article>`}).join("")||"<div class='card'>No se han encontrado plantas.</div>";renderStats()}
+listTitle.textContent=statusFilter==="all"?"Mis plantas":({today:"Plantas para regar hoy",soon:"Plantas próximas a regar (7 días)",ok:"Plantas al día",late:"Plantas atrasadas",dead:"Plantas sin vida"})[statusFilter];plantCount.textContent=list.length+" plantas";plantGrid.innerHTML=list.map(p=>{let s=status(p),labels={today:"REGAR HOY",late:"ATRASADA",soon:"PRÓXIMAMENTE",ok:"AL DÍA",dead:"SIN VIDA"};let next=p.dead?"":`<div class="next-water ${s}">${plantNextText(p)}</div>`;return `<article class="card ${p.dead?"dead-card":""}"><div class="top"><div class="planticon">${p.dead?"☁️":emoji(p)}</div><div><div class="name">${p.name}</div><div class="meta plant-type">${p.place}</div><div class="meta plant-location">En ${p.location||"ubicación no indicada"}</div>${next}</div></div><span class="badge ${s}">${labels[s]}</span><div class="actions">${p.dead
+? `<button class="water revive" onclick="revivePlant(${p.id})">🌱 Revivir</button>`
+: `<button class="water" onclick="waterPlant(${p.id})">💧 He regado</button>`}
+<button class="details" onclick="editPlant(${p.id})">Ficha</button></div></article>`}).join("")||"<div class='card'>No se han encontrado plantas.</div>";renderStats()}
 function renderStats(){let a={today:0,soon:0,ok:0,late:0,dead:0};plants.forEach(p=>a[status(p)]++);if(document.getElementById("nAll"))document.getElementById("nAll").textContent=plants.length;nToday.textContent=a.today;nSoon.textContent=a.soon;nOk.textContent=a.ok;nLate.textContent=a.late;nDead.textContent=a.dead;
 let hero=document.querySelector(".hero");
 if(a.late){hero.style.background="linear-gradient(135deg,#6f2828,#9a3f38)";heroTitle.textContent="Recuerda, regarme";heroText.textContent=`Tienes ${a.late} planta${a.late!==1?"s":""} con el riego atrasado.`}
@@ -538,7 +560,7 @@ function refreshLocationFilter(){
  const sel=document.getElementById("locationFilter"); if(!sel)return;
  const current=locationFilter;
  const locations=[...new Set(plants.map(p=>(p.location||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es"));
- sel.innerHTML='<option value="">Todas las ubicaciones</option>'+locations.map(x=>`<option value="${x.replace(/"/g,'&quot;')}">${x}</option>`).join("");
+ sel.innerHTML='<option value="">Ubicación</option>'+locations.map(x=>`<option value="${x.replace(/"/g,'&quot;')}">${x}</option>`).join("");
  sel.value=locations.includes(current)?current:"";
  if(!locations.includes(current)) locationFilter="";
 }
@@ -546,6 +568,13 @@ function setLocationFilter(value){locationFilter=value;renderPlants();}
 function setFilter(el){filter=el.dataset.filter;document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));el.classList.add("active");renderPlants()}
 function waterPlant(id){let p=plants.find(x=>x.id===id);p.last=iso(new Date());if(p.mode==="manual")p.next=null;p.mode="auto";save();renderPlants();if(Notification.permission==="granted")new Notification("Riégame",{body:`Has registrado el riego de ${p.name}.`})}
 function openAdd(){editId=null;modalTitle.textContent="Añadir planta";["fName","fTemp","fNext","fNotes"].forEach(id=>document.getElementById(id).value="");fPlace.value="Interior";fLocation.value="";fLight.value="Luz indirecta brillante";fSummer.value=7;fWinter.value=14;fLast.value=iso(new Date());fMode.value="auto";fDead.checked=false;toggleManual();modal.classList.add("show")}
+function revivePlant(id){
+ const p=plants.find(x=>x.id===id);
+ if(!p)return;
+ p.dead=false;
+ save();
+ renderPlants();
+}
 function editPlant(id){let p=plants.find(x=>x.id===id);editId=id;modalTitle.textContent="Ficha de "+p.name;fName.value=p.name;fPlace.value=p.place;fLocation.value=p.location||"";fLight.value=p.light;fTemp.value=p.temp;fSummer.value=p.summer;fWinter.value=p.winter;fLast.value=p.last||"";fMode.value=p.mode;fNext.value=p.next||"";fNotes.value=p.notes||"";fDead.checked=!!p.dead;toggleManual();modal.classList.add("show")}
 function toggleManual(){manualWrap.classList.toggle("hidden",fMode.value!=="manual")}
 function closeModal(){modal.classList.remove("show")}
