@@ -566,6 +566,23 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 }
 </style>
 
+
+<style id="watering-history-v10">
+.watering-history{margin-top:18px;padding:16px;border:1px solid #e1d7c5;border-radius:18px;background:#fbfaf5}
+.history-title{font-family:Georgia,serif;font-size:19px;font-weight:700;color:#294c35;margin-bottom:10px}
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid #ebe4d8}
+.history-row span{font-size:14px;color:#3d4a40;text-transform:capitalize}
+.history-row button{border:0;background:#f2e0dc;color:#a2483a;border-radius:9px;padding:7px 10px;cursor:pointer;font-size:12px}
+.history-empty{font-size:14px;color:#777;padding:6px 0}
+@media(max-width:540px){
+ .watering-history{padding:13px;margin-top:14px}
+ .history-row{align-items:center}
+ .history-row span{font-size:13px}
+ .history-row button{padding:7px 9px}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -639,13 +656,23 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 <label>Programación<select id="fMode" onchange="toggleManual()"><option value="auto">Automática</option><option value="manual">Fecha manual</option></select></label>
 <label id="manualWrap" class="hidden">Próximo riego manual<input id="fNext" type="date"></label>
 <label class="full">Observaciones<textarea id="fNotes" rows="3" placeholder="Ubicación, tipo de sustrato, notas..."></textarea></label>
-</div><button class="save" onclick="savePlant()">Guardar planta</button><button class="details" style="width:100%;margin-top:9px" onclick="closeModal()">Cancelar</button></div></div>
+</div>
+<div id="wateringHistory" class="watering-history full">
+  <div class="history-title">Histórico de riegos</div>
+  <div id="historyList" class="history-list"></div>
+</div>
+<button class="save" onclick="savePlant()">Guardar planta</button><button class="details" style="width:100%;margin-top:9px" onclick="closeModal()">Cancelar</button></div></div>
 
 <script>
 const defaults=[
 ["Monstera deliciosa","Interior",7,14,"Luz indirecta brillante","18–28 °C"],["Monstera Thai","Interior",8,15,"Luz indirecta brillante","18–28 °C"],["Sansivieria","Interior",14,25,"Luz indirecta","15–30 °C"],["Poto variegado","Interior",7,14,"Luz indirecta brillante","18–28 °C"],["Calathea","Interior",5,9,"Luz indirecta","18–27 °C"],["Monstera obliqua","Interior",5,9,"Luz indirecta brillante","20–28 °C"],["Cactus Mammillaria","Interior",18,30,"Mucha luz","10–30 °C"],["Asiento de suegra","Interior",14,25,"Mucha luz","15–30 °C"],["Romero","Exterior",4,10,"Sol directo","5–32 °C"],["Lavanda","Exterior",5,12,"Sol directo","5–35 °C"],["Hedera","Exterior",5,10,"Semisombra","5–25 °C"],["Buganvilla","Exterior",5,12,"Sol directo","8–35 °C"],["Jazmín de estrella","Exterior",5,10,"Sol directo o semisombra","5–30 °C"],["Jade","Exterior",12,25,"Mucha luz","10–30 °C"],["Bignonia ricasoleana lila","Exterior",5,10,"Sol directo","5–32 °C"],["Bignonia capensis","Exterior",5,10,"Sol directo","5–32 °C"],["Acer palmatum Orange Dream","Exterior",4,9,"Semisombra","-10–28 °C"],["Acer palmatum Atropurpurea","Exterior",4,9,"Semisombra","-10–28 °C"]];
 const key="riegame_plants_v1"; let plants=JSON.parse(localStorage.getItem(key)||"null"); if(!plants){const d=new Date();d.setDate(d.getDate()-3);plants=defaults.map((x,i)=>({id:Date.now()+i,name:x[0],place:x[1],summer:x[2],winter:x[3],light:x[4],temp:x[5],last:iso(d),mode:"auto",next:null,notes:""}));save()}
-let filter="Todas",locationFilter="",statusFilter="all",editId=null,calDate=new Date(); plants.forEach(p=>{if(!("location" in p))p.location=""});
+let filter="Todas",locationFilter="",statusFilter="all",editId=null,calDate=new Date(); plants.forEach(p=>{
+ if(!("location" in p))p.location="";
+ if(!Array.isArray(p.history)){
+   p.history=p.last?[p.last]:[];
+ }
+});
 function iso(d){return d.toISOString().slice(0,10)} function save(){localStorage.setItem(key,JSON.stringify(plants))}
 function seasonDays(p,date=new Date()){let m=date.getMonth()+1; if(m>=6&&m<=9)return +p.summer;if(m===4||m===5||m===10||m===11)return Math.round((+p.summer + +p.winter)/2);return +p.winter}
 function due(p){if(p.mode==="manual"&&p.next)return new Date(p.next+"T12:00");let d=new Date((p.last||iso(new Date()))+"T12:00");d.setDate(d.getDate()+seasonDays(p,d));return d}
@@ -691,8 +718,20 @@ function setAllFilter(el){
  renderPlants();
 }
 function setFilter(el){filter=el.dataset.filter;document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));el.classList.add("active");renderPlants()}
-function waterPlant(id){let p=plants.find(x=>x.id===id);p.last=iso(new Date());if(p.mode==="manual")p.next=null;p.mode="auto";save();renderPlants();if(Notification.permission==="granted")new Notification("Riégame",{body:`Has registrado el riego de ${p.name}.`})}
-function openAdd(){editId=null;modalTitle.textContent="Añadir planta";["fName","fTemp","fNext","fNotes"].forEach(id=>document.getElementById(id).value="");fPlace.value="Interior";fLocation.value="";fLight.value="Luz indirecta brillante";fSummer.value=7;fWinter.value=14;fLast.value=iso(new Date());fMode.value="auto";fDead.checked=false;toggleManual();modal.classList.add("show")}
+function waterPlant(id){
+ let p=plants.find(x=>x.id===id);
+ if(!p)return;
+ const today=iso(new Date());
+ if(!Array.isArray(p.history))p.history=p.last?[p.last]:[];
+ if(!p.history.includes(today))p.history.unshift(today);
+ p.last=today;
+ if(p.mode==="manual")p.next=null;
+ p.mode="auto";
+ save();
+ renderPlants();
+ if(Notification.permission==="granted")new Notification("Riégame",{body:`Has registrado el riego de ${p.name}.`});
+}
+function openAdd(){editId=null;modalTitle.textContent="Añadir planta";["fName","fTemp","fNext","fNotes"].forEach(id=>document.getElementById(id).value="");fPlace.value="Interior";fLocation.value="";fLight.value="Luz indirecta brillante";fSummer.value=7;fWinter.value=14;fLast.value=iso(new Date());fMode.value="auto";fDead.checked=false;toggleManual();document.getElementById("historyList").innerHTML='<div class="history-empty">Aún no hay registros de riego.</div>';modal.classList.add("show")}
 function revivePlant(id){
  const p=plants.find(x=>x.id===id);
  if(!p)return;
@@ -700,10 +739,35 @@ function revivePlant(id){
  save();
  renderPlants();
 }
-function editPlant(id){let p=plants.find(x=>x.id===id);editId=id;modalTitle.textContent="Ficha de "+p.name;fName.value=p.name;fPlace.value=p.place;fLocation.value=p.location||"";fLight.value=p.light;fTemp.value=p.temp;fSummer.value=p.summer;fWinter.value=p.winter;fLast.value=p.last||"";fMode.value=p.mode;fNext.value=p.next||"";fNotes.value=p.notes||"";fDead.checked=!!p.dead;toggleManual();modal.classList.add("show")}
+function renderHistory(p){
+ const box=document.getElementById("historyList");
+ if(!box)return;
+ const h=Array.isArray(p.history)?p.history:[];
+ if(!h.length){
+   box.innerHTML='<div class="history-empty">No hay registros de riego.</div>';
+   return;
+ }
+ box.innerHTML=h.map((d,i)=>{
+   const dt=new Date(d+"T12:00:00");
+   const label=dt.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+   return `<div class="history-row"><span>💧 ${label}</span><button type="button" onclick="deleteWatering(${p.id},${i})" aria-label="Eliminar riego">Eliminar</button></div>`;
+ }).join("");
+}
+function deleteWatering(id,index){
+ const p=plants.find(x=>x.id===id);
+ if(!p||!Array.isArray(p.history))return;
+ if(!confirm("¿Eliminar este registro de riego?"))return;
+ p.history.splice(index,1);
+ p.last=p.history.length?p.history[0]:"";
+ if(p.mode==="auto")p.next=null;
+ save();
+ renderHistory(p);
+ renderPlants();
+}
+function editPlant(id){let p=plants.find(x=>x.id===id);editId=id;modalTitle.textContent="Ficha de "+p.name;fName.value=p.name;fPlace.value=p.place;fLocation.value=p.location||"";fLight.value=p.light;fTemp.value=p.temp;fSummer.value=p.summer;fWinter.value=p.winter;fLast.value=p.last||"";fMode.value=p.mode;fNext.value=p.next||"";fNotes.value=p.notes||"";fDead.checked=!!p.dead;toggleManual();renderHistory(p);modal.classList.add("show")}
 function toggleManual(){manualWrap.classList.toggle("hidden",fMode.value!=="manual")}
 function closeModal(){modal.classList.remove("show")}
-function savePlant(){if(!fName.value.trim())return alert("Escribe el nombre de la planta.");let p=editId?plants.find(x=>x.id===editId):{id:Date.now()};Object.assign(p,{name:fName.value.trim(),place:fPlace.value,location:fLocation.value.trim(),light:fLight.value,temp:fTemp.value,summer:+fSummer.value,winter:+fWinter.value,last:fLast.value,mode:fMode.value,next:fNext.value,notes:fNotes.value,dead:!!fDead.checked});if(!editId)plants.push(p);save();closeModal();renderPlants();renderCalendar()}
+function savePlant(){if(!fName.value.trim())return alert("Escribe el nombre de la planta.");let p=editId?plants.find(x=>x.id===editId):{id:Date.now(),history:[]};if(!Array.isArray(p.history))p.history=p.last?[p.last]:[];Object.assign(p,{name:fName.value.trim(),place:fPlace.value,location:fLocation.value.trim(),light:fLight.value,temp:fTemp.value,summer:+fSummer.value,winter:+fWinter.value,last:fLast.value,mode:fMode.value,next:fNext.value,notes:fNotes.value,dead:!!fDead.checked});if(!editId)plants.push(p);save();closeModal();renderPlants();renderCalendar()}
 function showView(el){document.querySelectorAll("section[id$='View']").forEach(x=>x.classList.add("hidden"));document.getElementById(el.dataset.view).classList.remove("hidden");document.querySelectorAll(".navitem").forEach(x=>x.classList.remove("active"));el.classList.add("active");if(el.dataset.view==="calendarView")renderCalendar()}
 function renderCalendar(){let y=calDate.getFullYear(),m=calDate.getMonth();monthName.textContent=new Date(y,m,1).toLocaleDateString("es-ES",{month:"long",year:"numeric"});let first=new Date(y,m,1).getDay();first=(first+6)%7;let days=new Date(y,m+1,0).getDate();let h=["L","M","X","J","V","S","D"].map(x=>`<div class="dow">${x}</div>`).join("");for(let i=0;i<first;i++)h+="<div></div>";for(let d=1;d<=days;d++){let date=new Date(y,m,d);let ps=plants.filter(p=>iso(due(p))===iso(date));h+=`<div class="day"><b>${d}</b>${ps.map(()=>"<i class='dot'></i>").join("")}</div>`}calendar.innerHTML=h;let sorted=[...plants].sort((a,b)=>due(a)-due(b)).slice(0,8);upcoming.innerHTML=sorted.map(p=>`<div class="card"><b>${emoji(p)} ${p.name}</b><div class="meta">${due(p).toLocaleDateString("es-ES")} · ${status(p)==="late"?"Atrasada":"Programada"}</div></div>`).join("")}
 function changeMonth(n){calDate.setMonth(calDate.getMonth()+n);renderCalendar()}
