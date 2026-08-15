@@ -595,6 +595,15 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 .data-tools{display:flex;gap:8px;justify-content:flex-end;margin:10px 0}
 .data-tools button{border:1px solid #cfd9d2;background:#f3f8f5;color:#315842;border-radius:12px;padding:9px 12px;font-weight:600}
 @media(max-width:540px){.data-tools{display:grid;grid-template-columns:1fr 1fr}.data-tools button{width:100%}}
+</style><style id="delete-plant-v13">
+.form-actions{display:flex;gap:10px;align-items:center;margin-top:14px}
+.form-actions .save{flex:1}
+.delete-plant{flex:0 0 auto;border:1px solid #b85b4c;background:#f8e2de;color:#9b3f32;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer}
+.delete-plant:hover{background:#f1d0ca}
+@media(max-width:540px){
+ .form-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .delete-plant{width:100%;padding:12px 8px}
+}
 </style></head>
 <body>
 <div class="app">
@@ -678,7 +687,10 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
   <div class="history-title">Histórico de riegos</div>
   <div id="historyList" class="history-list"></div>
 </div>
-<button class="save" onclick="savePlant()">Guardar planta</button><button class="details" style="width:100%;margin-top:9px" onclick="closeModal()">Cancelar</button></div></div>
+<div class="form-actions">
+<button class="save" onclick="savePlant()">Guardar planta</button>
+<button type="button" class="delete-plant" onclick="deletePlant()">🗑️ Eliminar planta</button>
+</div><button class="details" style="width:100%;margin-top:9px" onclick="closeModal()">Cancelar</button></div></div>
 
 <script>
 const defaults=[
@@ -784,6 +796,17 @@ function deleteWatering(id,index){
 function editPlant(id){let p=plants.find(x=>x.id===id);editId=id;modalTitle.textContent="Ficha de "+p.name;fName.value=p.name;fPlace.value=p.place;fLocation.value=p.location||"";fLight.value=p.light;fTemp.value=p.temp;fSummer.value=p.summer;fWinter.value=p.winter;fLast.value=p.last||"";fMode.value=p.mode;fNext.value=p.next||"";fNotes.value=p.notes||"";fDead.checked=!!p.dead;toggleManual();renderHistory(p);modal.classList.add("show")}
 function toggleManual(){manualWrap.classList.toggle("hidden",fMode.value!=="manual")}
 function closeModal(){modal.classList.remove("show")}
+function deletePlant(){
+ if(!editId)return;
+ const p=plants.find(x=>x.id===editId);
+ if(!p)return;
+ if(!confirm(`¿Seguro que quieres eliminar la planta "${p.name}"? Esta acción no se puede deshacer.`))return;
+ plants=plants.filter(x=>x.id!==editId);
+ save();
+ closeModal();
+ renderPlants();
+ renderCalendar();
+}
 function savePlant(){if(!fName.value.trim())return alert("Escribe el nombre de la planta.");let p=editId?plants.find(x=>x.id===editId):{id:Date.now(),history:[]};if(!Array.isArray(p.history))p.history=p.last?[p.last]:[];Object.assign(p,{name:fName.value.trim(),place:fPlace.value,location:fLocation.value.trim(),light:fLight.value,temp:fTemp.value,summer:+fSummer.value,winter:+fWinter.value,last:fLast.value,mode:fMode.value,next:fNext.value,notes:fNotes.value,dead:!!fDead.checked});if(!editId)plants.push(p);save();closeModal();renderPlants();renderCalendar()}
 function showView(el){document.querySelectorAll("section[id$='View']").forEach(x=>x.classList.add("hidden"));document.getElementById(el.dataset.view).classList.remove("hidden");document.querySelectorAll(".navitem").forEach(x=>x.classList.remove("active"));el.classList.add("active");if(el.dataset.view==="calendarView")renderCalendar()}
 function renderCalendar(){let y=calDate.getFullYear(),m=calDate.getMonth();monthName.textContent=new Date(y,m,1).toLocaleDateString("es-ES",{month:"long",year:"numeric"});let first=new Date(y,m,1).getDay();first=(first+6)%7;let days=new Date(y,m+1,0).getDate();let h=["L","M","X","J","V","S","D"].map(x=>`<div class="dow">${x}</div>`).join("");for(let i=0;i<first;i++)h+="<div></div>";for(let d=1;d<=days;d++){let date=new Date(y,m,d);let ps=plants.filter(p=>iso(due(p))===iso(date));h+=`<div class="day"><b>${d}</b>${ps.map(()=>"<i class='dot'></i>").join("")}</div>`}calendar.innerHTML=h;let sorted=[...plants].sort((a,b)=>due(a)-due(b)).slice(0,8);upcoming.innerHTML=sorted.map(p=>`<div class="card"><b>${emoji(p)} ${p.name}</b><div class="meta">${due(p).toLocaleDateString("es-ES")} · ${status(p)==="late"?"Atrasada":"Programada"}</div></div>`).join("")}
