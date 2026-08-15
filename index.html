@@ -604,7 +604,10 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
  .form-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
  .delete-plant{width:100%;padding:12px 8px}
 }
-</style></head>
+</style><style id="soon-threshold-v14">
+/* Próximamente = riego previsto hoy o dentro de 1 día. */
+</style>
+</head>
 <body>
 <div class="app">
 <header class="ref-header">
@@ -705,11 +708,11 @@ let filter="Todas",locationFilter="",statusFilter="all",editId=null,calDate=new 
 function iso(d){return d.toISOString().slice(0,10)} function save(){localStorage.setItem(key,JSON.stringify(plants))}
 function seasonDays(p,date=new Date()){let m=date.getMonth()+1; if(m>=6&&m<=9)return +p.summer;if(m===4||m===5||m===10||m===11)return Math.round((+p.summer + +p.winter)/2);return +p.winter}
 function due(p){if(p.mode==="manual"&&p.next)return new Date(p.next+"T12:00");let d=new Date((p.last||iso(new Date()))+"T12:00");d.setDate(d.getDate()+seasonDays(p,d));return d}
-function status(p){if(p.dead)return "dead";let today=new Date();today.setHours(0,0,0,0);let d=due(p);d.setHours(0,0,0,0);let diff=Math.round((d-today)/86400000);return diff<0?"late":diff===0?"today":diff<=3?"soon":"ok"}
+function status(p){if(p.dead)return "dead";let today=new Date();today.setHours(0,0,0,0);let d=due(p);d.setHours(0,0,0,0);let diff=Math.round((d-today)/86400000);return diff<0?"late":diff===0?"today":diff<=1?"soon":"ok"}
 function emoji(p){let n=p.name.toLowerCase();return n.includes("cactus")||n.includes("mammillaria")?"🌵":n.includes("lavanda")?"💜":n.includes("buganvilla")||n.includes("jazmín")?"🌸":n.includes("romero")?"🌿":n.includes("acer")?"🍁":"🪴"}
 function renderPlants(){refreshLocationFilter();let list=plants.filter(p=>(filter==="Todas"||p.place===filter)&&(locationFilter===""||(p.location||"")===locationFilter)&&(statusFilter==="all"||status(p)===statusFilter));
 list.sort((a,b)=>{const rank={late:0,today:1,soon:2,ok:3,dead:4};let r=rank[status(a)]-rank[status(b)];return r||(+due(a)-+due(b))});
-listTitle.textContent=statusFilter==="all"?"Mis plantas":({today:"Plantas para regar hoy",soon:"Plantas próximas a regar (7 días)",ok:"Plantas al día",late:"Plantas atrasadas",dead:"Plantas sin vida"})[statusFilter];plantCount.textContent=list.length+" plantas";plantGrid.innerHTML=list.map(p=>{let s=status(p),labels={today:"REGAR HOY",late:"ATRASADA",soon:"PRÓXIMAMENTE",ok:"AL DÍA",dead:"SIN VIDA"};let next=p.dead?"":`<div class="next-water ${s}">${plantNextText(p)}</div>`;return `<article class="card ${p.dead?"dead-card":""}"><div class="top"><div class="planticon">${p.dead?"☁️":emoji(p)}</div><div><div class="name">${p.name}</div><div class="meta plant-type">${p.place}</div><div class="meta plant-location">En ${p.location||"ubicación no indicada"}</div>${next}</div></div><span class="badge ${s}">${labels[s]}</span><div class="actions">${p.dead
+listTitle.textContent=statusFilter==="all"?"Mis plantas":({today:"Plantas para regar hoy",soon:"Plantas próximas a regar (1 día)",ok:"Plantas al día",late:"Plantas atrasadas",dead:"Plantas sin vida"})[statusFilter];plantCount.textContent=list.length+" plantas";plantGrid.innerHTML=list.map(p=>{let s=status(p),labels={today:"REGAR HOY",late:"ATRASADA",soon:"PRÓXIMAMENTE",ok:"AL DÍA",dead:"SIN VIDA"};let next=p.dead?"":`<div class="next-water ${s}">${plantNextText(p)}</div>`;return `<article class="card ${p.dead?"dead-card":""}"><div class="top"><div class="planticon">${p.dead?"☁️":emoji(p)}</div><div><div class="name">${p.name}</div><div class="meta plant-type">${p.place}</div><div class="meta plant-location">En ${p.location||"ubicación no indicada"}</div>${next}</div></div><span class="badge ${s}">${labels[s]}</span><div class="actions">${p.dead
 ? `<button class="water revive" onclick="revivePlant(${p.id})">🌱 Revivir</button>`
 : `<button class="water" onclick="waterPlant(${p.id})">💧 He regado</button>`}
 <button class="details" onclick="editPlant(${p.id})">Ficha</button></div></article>`}).join("")||"<div class='card'>No se han encontrado plantas.</div>";renderStats()}
