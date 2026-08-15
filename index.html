@@ -610,6 +610,11 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 <style id="history-v15">
 .history-list{max-height:260px;overflow-y:auto}
 .history-row:first-child{border-left:4px solid #6d9b72}
+</style><style id="quick-search-v16">
+.quick-search{display:flex;gap:8px;align-items:center;margin:8px 0 14px;padding:8px;background:#eaf4f8;border-radius:14px}
+.quick-search input{flex:1;min-width:0;border:1px solid #c9e0e8;background:#fff;border-radius:10px;padding:11px 12px;font-size:15px;outline:none}
+.quick-search button{border:0;background:#fff;border:1px solid #c9e0e8;color:#315842;border-radius:10px;padding:10px 12px}
+.quick-search.hidden{display:none}
 </style></head>
 <body>
 <div class="app">
@@ -619,7 +624,7 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
     <div class="ref-name">Riégame</div>
   </div>
   <div class="ref-actions">
-    <button class="ref-round search-btn" type="button" aria-label="Buscar" onclick="document.querySelector('input[type=search],#search')?.focus()">
+    <button class="ref-round search-btn" type="button" aria-label="Buscar" onclick="openQuickSearch()">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.2"></circle><path d="M14.5 14.5L19 19"></path></svg>
     </button>
     <button class="ref-round cal-btn" type="button" aria-label="Calendario" onclick="goToCalendar()">
@@ -628,6 +633,10 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
     <button class="ref-new" type="button" onclick="openAdd()"><span class="plus">＋</span><span>Nueva planta</span></button>
   </div>
 </header>
+<div id="quickSearch" class="quick-search hidden">
+  <input id="quickSearchInput" type="search" placeholder="Buscar planta..." autocomplete="off">
+  <button type="button" onclick="closeQuickSearch()">Cerrar</button>
+</div>
 
 <section id="homeView">
 <div class="hero"><div class="hero-plant" aria-hidden="true">
@@ -769,6 +778,50 @@ function waterPlant(id){
  if(document.getElementById("modal")?.classList.contains("show"))renderHistory(p);
  if(Notification.permission==="granted")new Notification("Riégame",{body:`Has registrado el riego de ${p.name}.`});
 }
+function openQuickSearch(){
+ const q=document.getElementById("quickSearch");
+ const input=document.getElementById("quickSearchInput");
+ q.classList.remove("hidden");
+ input.value="";
+ input.focus();
+}
+function closeQuickSearch(){
+ const q=document.getElementById("quickSearch");
+ q.classList.add("hidden");
+ const input=document.getElementById("quickSearchInput");
+ input.value="";
+ renderPlants();
+}
+function filterBySearch(){
+ const input=document.getElementById("quickSearchInput");
+ const query=input.value.trim().toLowerCase();
+ const list=plants.filter(p=>{
+   const name=(p.name||"").toLowerCase();
+   const place=(p.place||"").toLowerCase();
+   const loc=(p.location||"").toLowerCase();
+   return name.includes(query)||place.includes(query)||loc.includes(query);
+ });
+ plantCount.textContent=list.length+" plantas";
+ plantGrid.innerHTML=list.map(p=>{
+   const st=status(p);
+   const labels={today:"REGAR HOY",late:"ATRASADA",soon:"PRÓXIMAMENTE",ok:"AL DÍA",dead:"SIN VIDA"};
+   const next=p.dead?"":`<div class="next-water ${st}">${plantNextText(p)}</div>`;
+   return `<article class="card ${p.dead?"dead-card":""}"><div class="top"><div class="planticon">${p.dead?"☁️":emoji(p)}</div><div><div class="name">${p.name}</div><div class="meta">${p.place||""}</div><div class="meta">${p.location||""}</div></div></div>${next}<div class="badge ${st}">${labels[st]}</div><div class="actions">${p.dead?`<button class="water revive" onclick="revivePlant(${p.id})">🌱 Revivir</button>`:`<button class="water" onclick="waterPlant(${p.id})">💧 He regado</button>`}<button class="details" onclick="editPlant(${p.id})">Ficha</button></div></article>`;
+ }).join("");
+}
+document.addEventListener("DOMContentLoaded",()=>{
+ const input=document.getElementById("quickSearchInput");
+ if(!input)return;
+ input.addEventListener("input",filterBySearch);
+ input.addEventListener("keydown",e=>{
+   if(e.key==="Enter"){
+     const q=input.value.trim().toLowerCase();
+     const p=plants.find(x=>(x.name||"").toLowerCase().includes(q));
+     if(p){closeQuickSearch();editPlant(p.id);}
+   }
+   if(e.key==="Escape")closeQuickSearch();
+ });
+});
 function openAdd(){editId=null;modalTitle.textContent="Añadir planta";["fName","fTemp","fNext","fNotes"].forEach(id=>document.getElementById(id).value="");fPlace.value="Interior";fLocation.value="";fLight.value="Luz indirecta brillante";fSummer.value=7;fWinter.value=14;fLast.value=iso(new Date());fMode.value="auto";fDead.checked=false;toggleManual();document.getElementById("historyList").innerHTML='<div class="history-empty">Aún no hay registros de riego.</div>';modal.classList.add("show")}
 function revivePlant(id){
  const p=plants.find(x=>x.id===id);
