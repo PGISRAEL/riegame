@@ -591,7 +591,11 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 .data-tools button{width:100%;padding:10px 7px}
 }
 </style>
-</head>
+<style id="data-sync-v12">
+.data-tools{display:flex;gap:8px;justify-content:flex-end;margin:10px 0}
+.data-tools button{border:1px solid #cfd9d2;background:#f3f8f5;color:#315842;border-radius:12px;padding:9px 12px;font-weight:600}
+@media(max-width:540px){.data-tools{display:grid;grid-template-columns:1fr 1fr}.data-tools button{width:100%}}
+</style></head>
 <body>
 <div class="app">
 <header class="ref-header">
@@ -787,7 +791,38 @@ function changeMonth(n){calDate.setMonth(calDate.getMonth()+n);renderCalendar()}
 function requestNotifications(){if(!("Notification"in window))return alert("Este navegador no admite notificaciones.");Notification.requestPermission().then(r=>alert(r==="granted"?"Avisos activados.":"No se han autorizado los avisos."))}
 function openSettings(){showView(document.querySelector('[data-view="settingsView"]'))}
 function exportData(){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(plants,null,2)],{type:"application/json"}));a.download="riegame-copia.json";a.click()}
-function importData(e){let r=new FileReader();r.onload=()=>{try{plants=JSON.parse(r.result);save();renderPlants();alert("Copia importada.");}catch{alert("Archivo no válido.")}};r.readAsText(e.target.files[0])}
+function importData(e){
+ const file=e&&e.target&&e.target.files&&e.target.files[0];
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=function(){
+   try{
+     const raw=JSON.parse(reader.result);
+     const incoming=Array.isArray(raw)?raw:(Array.isArray(raw.plants)?raw.plants:null);
+     if(!incoming)throw new Error("Formato no válido");
+     if(!confirm("Se sustituirán las plantas actuales por las "+incoming.length+" plantas del archivo. ¿Continuar?")){
+       e.target.value="";
+       return;
+     }
+     plants=incoming.map(p=>{
+       const x={...p};
+       if(!Array.isArray(x.history))x.history=x.last?[x.last]:[];
+       if(!("location" in x))x.location="";
+       if(!("dead" in x))x.dead=false;
+       return x;
+     });
+     localStorage.setItem(key,JSON.stringify(plants));
+     e.target.value="";
+     alert("Importación completada. Se han cargado "+plants.length+" plantas.");
+     location.reload();
+   }catch(err){
+     console.error(err);
+     e.target.value="";
+     alert("No se pudo importar el archivo. Selecciona un archivo JSON exportado desde Riégame.");
+   }
+ }
+ reader.readAsText(file);
+}
 renderPlants();renderCalendar();
 </script>
 
