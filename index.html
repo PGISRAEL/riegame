@@ -583,6 +583,14 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 }
 </style>
 
+<style id="data-tools-v11">
+.data-tools{display:flex;justify-content:flex-end;gap:8px;margin:10px 0 4px}
+.data-tools button{border:1px solid #d8cdbb;background:#fffaf2;color:#36563f;border-radius:12px;padding:8px 12px;font-size:13px;cursor:pointer}
+@media(max-width:540px){
+.data-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.data-tools button{width:100%;padding:10px 7px}
+}
+</style>
 </head>
 <body>
 <div class="app">
@@ -615,7 +623,12 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 <button class="stat ref-stat soon" data-status="soon" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/><path d="M9 3.5h6"/></svg></span><span class="stat-copy"><strong>Próximamente</strong><small><b id="nSoon">0</b> plantas</small></span></button>
 <button class="stat ref-stat late" data-status="late" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2h.01"/></svg></span><span class="stat-copy"><strong>Atrasadas</strong><small><b id="nLate">0</b> plantas</small></span></button>
 <button class="stat ref-stat dead" data-status="dead" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9c0-3 2.8-5 7-5s7 2 7 5c0 4-3.2 7-7 7S5 13 5 9Z"/><path d="M8.5 9.5h.01M15.5 9.5h.01M9 13c2-1 4-1 6 0"/></svg></span><span class="stat-copy"><strong>Sin vida</strong><small><b id="nDead">0</b> plantas</small></span></button>
-</div><div class="toolbar location-toolbar">
+</div><div id="dataTools" class="data-tools">
+<button type="button" onclick="exportData()">⬇️ Exportar datos</button>
+<button type="button" onclick="document.getElementById('importFile').click()">⬆️ Importar datos</button>
+<input id="importFile" type="file" accept=".json,application/json" hidden onchange="importData(event)">
+</div>
+<div class="toolbar location-toolbar">
 <button class="pill" data-filter="Interior" onclick="setFilter(this)">Interior</button>
 <button class="pill" data-filter="Exterior" onclick="setFilter(this)">Exterior</button>
 <select id="locationFilter" class="pill location-filter" onchange="setLocationFilter(this.value)">
