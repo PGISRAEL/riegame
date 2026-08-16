@@ -615,8 +615,6 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 .quick-search input{flex:1;min-width:0;border:1px solid #c9e0e8;background:#fff;border-radius:10px;padding:11px 12px;font-size:15px;outline:none}
 .quick-search button{border:0;background:#fff;border:1px solid #c9e0e8;color:#315842;border-radius:10px;padding:10px 12px}
 .quick-search.hidden{display:none}
-</style><style id="calendar-v17">
-.calendar-enhanced{padding:14px}.cal-head{display:flex;align-items:center;justify-content:space-between}.cal-head>button{width:40px;height:40px;border:0;border-radius:12px;background:#eef4ed;font-size:25px;color:#315842}.cal-head>div{text-align:center}.cal-head strong{display:block;text-transform:capitalize;font-size:19px;color:#315842}.today-btn{border:0;background:#e9f2e7;color:#315842;border-radius:9px;padding:5px 10px;font-size:12px}.cal-filters{display:grid;grid-template-columns:repeat(3,1fr) 1.2fr;gap:7px;margin:12px 0}.cal-filter,.cal-filters select{border:1px solid #d4e0d8;background:#f4f8f4;color:#315842;border-radius:10px;padding:9px 6px}.cal-filter.active{background:#315842;color:#fff}.cal-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}.cal-summary span{background:#faf8f1;border-radius:10px;padding:8px 3px;text-align:center;font-size:11px}.cal-grid-head,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.cal-grid-head{text-align:center;font-size:12px;color:#738078}.cal-cell{min-height:52px;border:1px solid #e6e1d8;background:#fff;border-radius:10px;padding:5px;display:flex;flex-direction:column;align-items:center}.cal-cell.empty{visibility:hidden}.cal-cell.today{outline:2px solid #7da27f}.marks{margin-top:4px}.cal-day-details{margin-top:14px;background:#f8f6ef;border-radius:15px;padding:13px}.cal-day-details h3{margin:0 0 10px;text-transform:capitalize;color:#315842}.cal-item{display:flex;justify-content:space-between;background:#fff;border-radius:11px;padding:10px;margin-bottom:7px}.cal-item small{display:block;color:#777}.done{color:#4f8a59}.pending{color:#bd7140}.cal-empty{text-align:center;color:#777;padding:10px}.settings-data-tools{margin:18px 0;padding:15px;background:#eef6f0;border-radius:16px}.settings-data-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.settings-data-buttons button{border:1px solid #cddbd0;background:#fff;color:#315842;border-radius:11px;padding:10px}@media(max-width:540px){.cal-filters{grid-template-columns:repeat(3,1fr)}.cal-filters select{grid-column:1/-1}.cal-summary{grid-template-columns:repeat(2,1fr)}}
 </style></head>
 <body>
 <div class="app">
@@ -629,7 +627,9 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
     <button class="ref-round search-btn" type="button" aria-label="Buscar" onclick="openQuickSearch()">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.2"></circle><path d="M14.5 14.5L19 19"></path></svg>
     </button>
-    
+    <button class="ref-round cal-btn" type="button" aria-label="Calendario" onclick="goToCalendar()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="2"></rect><path d="M8 3.5v4M16 3.5v4M4 9.5h16"></path><path d="M8 13h.01M12 13h.01M16 13h.01M8 16h.01M12 16h.01"></path></svg>
+    </button>
     <button class="ref-new" type="button" onclick="openAdd()"><span class="plus">＋</span><span>Nueva planta</span></button>
   </div>
 </header>
@@ -651,7 +651,12 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 <button class="stat ref-stat soon" data-status="soon" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/><path d="M9 3.5h6"/></svg></span><span class="stat-copy"><strong>Próximamente</strong><small><b id="nSoon">0</b> plantas</small></span></button>
 <button class="stat ref-stat late" data-status="late" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2h.01"/></svg></span><span class="stat-copy"><strong>Atrasadas</strong><small><b id="nLate">0</b> plantas</small></span></button>
 <button class="stat ref-stat dead" data-status="dead" onclick="setStatusFilter(this)"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9c0-3 2.8-5 7-5s7 2 7 5c0 4-3.2 7-7 7S5 13 5 9Z"/><path d="M8.5 9.5h.01M15.5 9.5h.01M9 13c2-1 4-1 6 0"/></svg></span><span class="stat-copy"><strong>Sin vida</strong><small><b id="nDead">0</b> plantas</small></span></button>
-</div><div class="toolbar location-toolbar">
+</div><div id="dataTools" class="data-tools">
+<button type="button" onclick="exportData()">⬇️ Exportar datos</button>
+<button type="button" onclick="document.getElementById('importFile').click()">⬆️ Importar datos</button>
+<input id="importFile" type="file" accept=".json,application/json" hidden onchange="importData(event)">
+</div>
+<div class="toolbar location-toolbar">
 <button class="pill" data-filter="Interior" onclick="setFilter(this)">Interior</button>
 <button class="pill" data-filter="Exterior" onclick="setFilter(this)">Exterior</button>
 <select id="locationFilter" class="pill location-filter" onchange="setLocationFilter(this.value)">
@@ -663,26 +668,13 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 <div id="plantGrid" class="grid"></div>
 </section>
 
-<section id="calendarEnhanced" class="calendar-enhanced">
-<div class="cal-head"><button onclick="changeMonth(-1)">‹</button><div><strong id="calMonthTitle"></strong><button class="today-btn" onclick="goCalendarToday()">HOY</button></div><button onclick="changeMonth(1)">›</button></div>
-<div class="cal-filters"><button class="cal-filter active" onclick="setCalFilter('Todas',this)">Todas</button><button class="cal-filter" onclick="setCalFilter('Interior',this)">Interior</button><button class="cal-filter" onclick="setCalFilter('Exterior',this)">Exterior</button><select id="calLocationFilter" onchange="setCalLocation(this.value)"><option value="">Ubicación</option></select></div>
-<div class="cal-summary" id="calSummary"></div>
-<div class="cal-grid-head"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
-<div id="calGrid" class="cal-grid"></div><div id="calDayDetails" class="cal-day-details"><div class="cal-empty">Selecciona un día para ver sus riegos.</div></div>
-</section><section id="calendarView" class="hidden">
+<section id="calendarView" class="hidden">
 <div class="section-title"><h3>Calendario de riego</h3><span>Vista mensual</span></div>
 <div class="calendar"><div class="calhead"><button class="details" onclick="changeMonth(-1)">‹</button><b id="monthName"></b><button class="details" onclick="changeMonth(1)">›</button></div><div class="week" id="calendar"></div></div>
 <div class="section-title"><h3>Próximos riegos</h3></div><div id="upcoming" class="grid"></div>
 </section>
 
-<section id="settingsView" class="hidden"><div id="settingsDataTools" class="settings-data-tools">
-<h3>Datos de Riégame</h3>
-<p>Guarda una copia de tus plantas o recupera los datos de otro dispositivo.</p>
-<div class="settings-data-buttons">
-<button type="button" onclick="exportData()">⬇️ Exportar datos</button>
-<button type="button" onclick="document.getElementById('importFile').click()">⬆️ Importar datos</button>
-<input id="importFile" type="file" accept=".json,application/json" hidden onchange="importData(event)">
-</div></div>
+<section id="settingsView" class="hidden">
 <div class="section-title"><h3>Ajustes</h3></div>
 <div class="card"><b>Notificaciones “Riégame”</b><p class="meta">Activa los avisos del navegador. Para avisos con la app cerrada será necesario publicar esta web como PWA con servicio de notificaciones.</p><div class="actions"><button class="water" onclick="requestNotifications()">Activar avisos</button></div></div>
 <div class="card" style="margin-top:12px"><b>Copia de seguridad</b><p class="meta">Exporta o importa todas tus plantas.</p><div class="actions"><button class="details" onclick="exportData()">Exportar</button><label class="details">Importar<input type="file" accept=".json" hidden onchange="importData(event)"></label></div></div>
@@ -690,7 +682,7 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 </div>
 
 <button class="fab" onclick="openAdd()">＋</button>
-<nav><div class="navin"><button class="navitem active" data-view="homeView" onclick="showView(this)"><i>⌂</i>Inicio</button><button class="navitem" data-view="settingsView" onclick="showView(this)"><i>⚙</i>Ajustes</button></div></nav>
+<nav><div class="navin"><button class="navitem active" data-view="homeView" onclick="showView(this)"><i>⌂</i>Inicio</button><button class="navitem" data-view="calendarView" onclick="showView(this)"><i>▦</i>Calendario</button><button class="navitem" data-view="settingsView" onclick="showView(this)"><i>⚙</i>Ajustes</button></div></nav>
 
 <div id="modal" class="modal"><div class="sheet"><h2 id="modalTitle">Añadir planta</h2><div class="form">
 <label>Nombre<input id="fName" placeholder="Ej. Monstera deliciosa"></label>
@@ -830,33 +822,6 @@ document.addEventListener("DOMContentLoaded",()=>{
    if(e.key==="Escape")closeQuickSearch();
  });
 });
-function goHome(){ showPage("home"); }
-let calDate=new Date(),calFilter="Todas",calLocation="";
-function filteredCalendarPlants(){return plants.filter(p=>!p.dead&&(calFilter==="Todas"||p.place===calFilter)&&(!calLocation||(p.location||"")===calLocation));}
-function setCalFilter(v,el){calFilter=v;document.querySelectorAll(".cal-filter").forEach(x=>x.classList.remove("active"));el.classList.add("active");renderEnhancedCalendar();}
-function setCalLocation(v){calLocation=v;renderEnhancedCalendar();}
-function changeMonth(n){calDate.setMonth(calDate.getMonth()+n);renderEnhancedCalendar();}
-function goCalendarToday(){calDate=new Date();renderEnhancedCalendar();}
-function calKey(d){return d.toISOString().slice(0,10);}
-function calHistoryHas(p,k){return Array.isArray(p.history)&&p.history.some(x=>(typeof x==="string"?x:x.date)===k);}
-function renderEnhancedCalendar(){
- const grid=document.getElementById("calGrid");if(!grid)return;
- const y=calDate.getFullYear(),m=calDate.getMonth(),today=calKey(new Date());
- document.getElementById("calMonthTitle").textContent=new Intl.DateTimeFormat("es-ES",{month:"long",year:"numeric"}).format(calDate);
- const ps=filteredCalendarPlants(),locs=[...new Set(plants.map(p=>p.location).filter(Boolean))].sort(),sel=document.getElementById("calLocationFilter");
- if(sel){const old=calLocation;sel.innerHTML='<option value="">Ubicación</option>'+locs.map(x=>`<option>${x}</option>`).join("");sel.value=old;}
- const first=new Date(y,m,1),start=(first.getDay()+6)%7,days=new Date(y,m+1,0).getDate();let html="";
- for(let i=0;i<start;i++)html+='<div class="cal-cell empty"></div>';
- for(let d=1;d<=days;d++){const k=calKey(new Date(y,m,d)),items=ps.filter(p=>p.next===k||calHistoryHas(p,k));html+=`<button class="cal-cell ${k===today?"today":""}" onclick="showCalendarDay('${k}')"><b>${d}</b><span class="marks">${items.slice(0,3).map(p=>calHistoryHas(p,k)?'<span class="done">💧</span>':'<span class="pending">💧</span>').join("")}${items.length>3?`<small>+${items.length-3}</small>`:""}</span></button>`;}
- grid.innerHTML=html;
- let planned=0,done=0,late=0,soon=0,prefix=`${y}-${String(m+1).padStart(2,"0")}-`;
- ps.forEach(p=>{if(p.next&&p.next.startsWith(prefix)){planned++;if(calHistoryHas(p,p.next))done++;else if(p.next<today)late++;else if((new Date(p.next)-new Date(today))/86400000<=1)soon++;}});
- document.getElementById("calSummary").innerHTML=`<span>💧 <b>${planned}</b> previstos</span><span>✅ <b>${done}</b> realizados</span><span>⚠️ <b>${late}</b> atrasados</span><span>🌱 <b>${soon}</b> próximos</span>`;
-}
-function showCalendarDay(k){
- const box=document.getElementById("calDayDetails"),ps=filteredCalendarPlants(),items=ps.filter(p=>p.next===k||calHistoryHas(p,k)),dt=new Date(k+"T12:00:00"),label=new Intl.DateTimeFormat("es-ES",{weekday:"long",day:"numeric",month:"long"}).format(dt);
- box.innerHTML=`<h3>${label}</h3>`+(items.length?items.map(p=>`<div class="cal-item"><div><strong>${p.name}</strong><small>${p.place||""}${p.location?" · "+p.location:""}</small></div><span class="${calHistoryHas(p,k)?"done":"pending"}">${calHistoryHas(p,k)?"✓ Regada":"💧 Pendiente"}</span></div>`).join(""):'<div class="cal-empty">No hay riegos para este día.</div>');
-}
 function openAdd(){editId=null;modalTitle.textContent="Añadir planta";["fName","fTemp","fNext","fNotes"].forEach(id=>document.getElementById(id).value="");fPlace.value="Interior";fLocation.value="";fLight.value="Luz indirecta brillante";fSummer.value=7;fWinter.value=14;fLast.value=iso(new Date());fMode.value="auto";fDead.checked=false;toggleManual();document.getElementById("historyList").innerHTML='<div class="history-empty">Aún no hay registros de riego.</div>';modal.classList.add("show")}
 function revivePlant(id){
  const p=plants.find(x=>x.id===id);
