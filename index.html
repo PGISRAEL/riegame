@@ -621,6 +621,15 @@ body{font-family:"DM Sans",sans-serif}.brand h1{font-family:"Cormorant Garamond"
 .cal18-filters{display:grid;grid-template-columns:repeat(3,1fr) 1.25fr;gap:7px;margin-bottom:12px}.cal18-filter,.cal18-filters select{border:1px solid var(--sand);background:#f4f8f4;color:var(--green);border-radius:10px;padding:9px 6px;font-size:12px}.cal18-filter.active{background:var(--green);color:white}
 .cal18-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}.cal18-summary span{background:#faf8f1;border-radius:10px;padding:8px 3px;text-align:center;font-size:11px}.cal18-blank{min-height:54px}.cal18-day{border:1px solid var(--sand);text-align:center;cursor:pointer}.cal18-day.cal18-today{outline:2px solid #7da27f}.cal18-marks{display:block;margin-top:4px}.cal18-marks i{font-style:normal;font-size:11px;margin:0 1px}.cal18-details{margin-top:14px;background:#f8f6ef;border-radius:15px;padding:13px}.cal18-details h3{margin:0 0 10px;text-transform:capitalize;color:var(--green)}.cal18-item{display:flex;justify-content:space-between;align-items:center;gap:8px;background:white;border-radius:11px;padding:10px;margin-bottom:7px}.cal18-item small{display:block;color:var(--muted);margin-top:2px}.cal18-done-text{color:var(--ok)}.cal18-pending-text{color:var(--soon)}.cal18-empty{text-align:center;color:var(--muted);padding:10px}
 @media(max-width:540px){.cal18-filters{grid-template-columns:repeat(3,1fr)}.cal18-filters select{grid-column:1/-1}.cal18-summary{grid-template-columns:repeat(2,1fr)}}
+</style><style id="calendar-v19">
+.day-mark{display:inline-flex;align-items:center;gap:2px;margin-top:4px;padding:2px 5px;border-radius:8px;font-size:11px}
+.day-mark.realized{background:#dff0df;color:#4f8a59}
+.day-mark.pending{background:#fff0df;color:#bd7140}
+.day-mark.mixed{background:#eee4f5;color:#76518b}
+.cal-cell.today{background:#f4f9f3}
+.cal-legend{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:-4px 0 10px;font-size:11px;color:#667067}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:3px}
+.legend-dot.realized{background:#6eaa73}.legend-dot.pending{background:#d78a50}.legend-dot.mixed{background:#8c69a0}
 </style></head>
 <body>
 <div class="app">
